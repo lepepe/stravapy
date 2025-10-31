@@ -3,14 +3,20 @@ from models.strava_client import StravaClient
 from controllers.strava_controller import StravaController
 from utils.config import STRAVA_CONFIG
 
-st.set_page_config(page_title="Strava Dashboard", layout="wide")
+st.set_page_config(page_title="StravaPy Dashboard", layout="wide")
+st.logo(
+    "assets/main-logo.png",
+    size="large",
+    link=None,
+    icon_image="assets/icon-logo.png"
+)
 
 # Initialize
 client = StravaClient(**STRAVA_CONFIG)
 controller = StravaController(client)
 
 # Sidebar
-st.sidebar.title("Strava Dashboard")
+st.sidebar.title("Dashboard")
 st.sidebar.write("Fetch your athlete profile and activities")
 
 # Athlete info
