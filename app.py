@@ -1,0 +1,43 @@
+import streamlit as st
+from models.strava_client import StravaClient
+from controllers.strava_controller import StravaController
+from utils.config import STRAVA_CONFIG
+
+st.set_page_config(page_title="Strava Dashboard", layout="wide")
+
+# Initialize
+client = StravaClient(**STRAVA_CONFIG)
+controller = StravaController(client)
+
+# Sidebar
+st.sidebar.title("Strava Dashboard")
+st.sidebar.write("Fetch your athlete profile and activities")
+
+# Athlete info
+st.header("👤 Athlete Profile")
+athlete = controller.get_athlete_info()
+col1, col2 = st.columns([1, 3])
+with col1:
+    st.image(athlete["profile"], width=100)
+with col2:
+    st.subheader(athlete["name"])
+    st.caption(f"{athlete['city']}, {athlete['country']}")
+
+# Activities
+st.header("📋 Recent Activities")
+limit = st.slider("Number of activities", 1, 100, 10)
+activities_df = controller.get_recent_activities(limit=limit)
+
+if not activities_df.empty:
+    st.dataframe(
+        activities_df[["name", "type", "distance_km", "moving_time_min", "start_date"]],
+        use_container_width=True,
+    )
+
+    st.bar_chart(
+        data=activities_df,
+        x="start_date",
+        y="distance_km",
+    )
+else:
+    st.info("No activities found.")
