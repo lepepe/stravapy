@@ -19,31 +19,34 @@ controller = StravaController(client)
 st.sidebar.title("Dashboard")
 st.sidebar.write("Fetch your athlete profile and activities")
 
-# Athlete info
-st.header("👤 Athlete Profile")
-athlete = controller.get_athlete_info()
 col1, col2 = st.columns([1, 3])
 with col1:
+    # Athlete info
+    athlete = controller.get_athlete_info()
+    st.header("👤 Athlete Profile")
     st.image(athlete["profile"], width=100)
-with col2:
     st.subheader(athlete["name"])
     st.caption(f"{athlete['city']}, {athlete['country']}")
+with col2:
+    # Activities
+    st.header("📋 Recent Activities")
+    limit = st.slider("Number of activities", 1, 100, 100)
+    activities_df = controller.get_recent_activities(limit=limit)
 
-# Activities
-st.header("📋 Recent Activities")
-limit = st.slider("Number of activities", 1, 100, 10)
-activities_df = controller.get_recent_activities(limit=limit)
+    if not activities_df.empty:
+        st.dataframe(
+            activities_df[["name", "type", "distance_km", "moving_time_min", "start_date"]],
+            use_container_width=True,
+            hide_index=True,
+            height=210
+        )
 
-if not activities_df.empty:
-    st.dataframe(
-        activities_df[["name", "type", "distance_km", "moving_time_min", "start_date"]],
-        use_container_width=True,
-    )
-
-    st.bar_chart(
-        data=activities_df,
-        x="start_date",
-        y="distance_km",
-    )
-else:
-    st.info("No activities found.")
+        st.subheader("Chart", divider="gray")
+        st.bar_chart(
+            data=activities_df,
+            x="start_date",
+            y="distance_km",
+            color=["#FF6A33"],
+        )
+    else:
+        st.info("No activities found.")
